@@ -1,0 +1,13 @@
+<h1>Home</h1>
+
+<a href="/create">create</a>
+
+<ul>
+  {{range .}}
+    {{if ne .Name `.gitkeep`}}
+      <li>
+        <a href="/view/{{.Name}}">{{.Name}}</a>
+      </li>
+    {{end}}
+  {{end}}
+</ul>

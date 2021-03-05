@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"log"
@@ -14,10 +15,11 @@ type Page struct {
   Body []byte
 }
 
-var templates = template.Must(template.ParseFiles("templates/view.html", "templates/edit.html"))
+var templates = template.Must(template.ParseFiles("templates/list.html", "templates/view.html", "templates/edit.html"))
 var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
 
 func main() {
+  http.HandleFunc("/", listHandler)
   http.HandleFunc("/view/", makeHandler(viewHandler))
   http.HandleFunc("/edit/", makeHandler(editHandler))
   http.HandleFunc("/save/", makeHandler(saveHandler))
@@ -26,7 +28,7 @@ func main() {
 }
 
 func (p *Page) save() error {
-  fileName := "pages/"+p.Title+".txt"
+  fileName := "pages/"+p.Title
   return ioutil.WriteFile(fileName, p.Body, 0600)
 }
 
@@ -40,7 +42,7 @@ func getTitle(w http.ResponseWriter, r *http.Request) (string, error) {
 }
 
 func loadPage(title string) (*Page, error) {
-  fileName := "pages/"+title+".txt"
+  fileName := "pages/"+title
   body, err := ioutil.ReadFile(fileName)
   if err != nil {
     return nil, err
@@ -63,6 +65,19 @@ func makeHandler(fn func (http.ResponseWriter, *http.Request, string)) http.Hand
       return
     }
     fn(w, r, m[2])
+  }
+}
+
+func listHandler(w http.ResponseWriter, r *http.Request) {
+  files, err := ioutil.ReadDir("pages/")
+  if err != nil {
+    fmt.Fprintf(w, err.Error())
+    return
+  }
+
+  err = templates.ExecuteTemplate(w, "list.html", files)
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
   }
 }
 
