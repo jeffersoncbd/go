@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+  "os"
 )
 
 type Page struct {
@@ -15,14 +16,17 @@ type Page struct {
   Body []byte
 }
 
-var templates = template.Must(template.ParseFiles("templates/list.html", "templates/view.html", "templates/edit.html"))
-var validPath = regexp.MustCompile("^/(edit|save|view)/([a-zA-Z0-9]+)$")
+var templates = template.Must(template.ParseFiles("templates/list.html", "templates/create.html", "templates/view.html", "templates/edit.html"))
+var validPath = regexp.MustCompile("^/(edit|update|view|delete)/([a-zA-Z0-9]+)$")
 
 func main() {
   http.HandleFunc("/", listHandler)
+  http.HandleFunc("/create", createHandler)
+  http.HandleFunc("/save", saveHandler)
   http.HandleFunc("/view/", makeHandler(viewHandler))
   http.HandleFunc("/edit/", makeHandler(editHandler))
-  http.HandleFunc("/save/", makeHandler(saveHandler))
+  http.HandleFunc("/update/", makeHandler(updateHandler))
+  http.HandleFunc("/delete/", makeHandler(deleteHandler))
 
   log.Fatal(http.ListenAndServe(":8080", nil))
 }
@@ -91,7 +95,32 @@ func viewHandler(w http.ResponseWriter, r *http.Request, title string) {
   renderTemplate(w, "view", p)
 }
 
-func saveHandler(w http.ResponseWriter, r *http.Request, title string) {
+func createHandler(w http.ResponseWriter, r *http.Request) {
+  renderTemplate(w, "create", nil)
+}
+
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+  title := r.FormValue("title")
+  body := r.FormValue("body")
+
+  validTitle := regexp.MustCompile("^([a-zA-Z0-9]+)$")
+  validationErr := validTitle.FindStringSubmatch(title)
+  if validationErr == nil {
+    fmt.Fprintf(w, "Caracteres inválidos no título: "+title)
+    return
+  }
+
+  p := &Page{Title: title, Body: []byte(body)}
+  err := p.save()
+  if err != nil {
+    http.Error(w, err.Error(), http.StatusInternalServerError)
+    return
+  }
+
+  http.Redirect(w, r, "/view/"+title, http.StatusFound)
+}
+
+func updateHandler(w http.ResponseWriter, r *http.Request, title string) {
   body := r.FormValue("body")
   p := &Page{Title: title, Body: []byte(body)}
   err := p.save()
@@ -110,5 +139,16 @@ func editHandler(w http.ResponseWriter, r *http.Request, title string) {
   }
 
   renderTemplate(w, "edit", p)
+}
+
+func deleteHandler(w http.ResponseWriter, r *http.Request, title string) {
+  _, err := loadPage(title)
+  if err != nil {
+    http.NotFound(w, r)
+  }
+
+  os.Remove("pages/"+title)
+
+  http.Redirect(w, r, "/", http.StatusFound)
 }
 

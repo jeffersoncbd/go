@@ -1,6 +1,47 @@
-<h1>{{.Title}}</h1>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GO - wiki</title>
 
-<p>[<a href="/edit/{{.Title}}">edit</a>]</p>
+    <style>
+      html {
+        width: 100%;
+      }
+      body {
+        width: 800px;
+        margin: 0px auto;
+        padding-top: 20px;
+      }
 
-<div>{{printf "%s" .Body}}</div>
+      .body {
+        background-color: #f5f5f5;
+        padding: 10px;
+        border-radius: 10px;
+        white-space: pre-wrap;
+      }
+
+      .actions {
+        margin-top: 20px;
+        width: 100%;
+        display: flex;
+        justify-content: flex-end;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <h1>{{.Title}}</h1>
+
+    <h3>[<a href="/">home</a>]</h3>
+
+    <div class="body">{{printf "%s" .Body}}</div>
+
+    <div class="actions">
+      [<a href="/edit/{{.Title}}">edit</a>]
+      [<a href="/delete/{{.Title}}">delete</a>]
+    </div>
+
+  </body>
+</html>
 

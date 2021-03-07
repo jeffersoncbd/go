@@ -1,13 +1,35 @@
-<h1>Home</h1>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>GO - wiki</title>
 
-<a href="/create">create</a>
+    <style>
+      html {
+        width: 100%;
+      }
+      body {
+        width: 800px;
+        margin: 0px auto;
+        padding-top: 20px;
+      }
+    </style>
+  </head>
 
-<ul>
-  {{range .}}
-    {{if ne .Name `.gitkeep`}}
-      <li>
-        <a href="/view/{{.Name}}">{{.Name}}</a>
-      </li>
-    {{end}}
-  {{end}}
-</ul>
+  <body>
+
+    <h1>Home</h1>
+
+    <a href="/create">create</a>
+
+    <ul>
+      {{range .}}
+        {{if ne .Name `.gitkeep`}}
+          <li>
+            <a href="/view/{{.Name}}">{{.Name}}</a>
+          </li>
+        {{end}}
+      {{end}}
+    </ul>
+
+  </body>
+</html>

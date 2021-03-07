@@ -13,7 +13,24 @@
         padding-top: 20px;
       }
 
-      textarea {
+      form {
+        width: 100%;
+      }
+
+      .title-block {
+        width: 50%;
+        display: flex;
+      }
+      .title-block input {
+        margin-left: 10px;
+        flex: 1;
+      }
+
+      .body-block {
+        margin-top: 10px;
+        width: 100%;
+      }
+      .body-block textarea {
         width: 100%;
       }
 
@@ -31,15 +48,20 @@
 
   <body>
 
-    <h1>Editing {{.Title}}</h1>
+    <h1>Create</h1>
 
-    <form action="/update/{{.Title}}" method="POST">
-      <div>
-        <textarea name="body" rows="20">{{printf "%s" .Body}}</textarea>
+    <form action="/save" method="POST">
+      <div class="title-block">
+        <label for="title">Título:</label>
+        <input id="title" name="title" />
+      </div>
+
+      <div class="body-block">
+        <textarea name="body" rows="20"></textarea>
       </div>
 
       <div class="actions">
-        <a href="/view/{{.Title}}">cancel</a>
+        <a href="/">cancel</a>
         <input type="submit" value="Save">
       </div>
     </form>
